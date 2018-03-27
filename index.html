@@ -1,0 +1,441 @@
+<html>
+	<head>
+	<link rel="stylesheet" href="ozobotstyle.css" type="text/css" />
+	</head>
+		<body>		
+<button id="add1" class="btn tile1" ></button>
+<button id="add2" class="btn tile2" ></button>
+<button id="add3" class="btn tile3" ></button>
+<button id="add4" class="btn tile4" ></button>
+<button id="add5" class="btn tile5" ></button>
+<button id="add6" class="btn tile6" ></button>
+<button id="add7" class="btn tile7" ></button>
+<button id="add8" class="btn tile8" ></button>
+<button id="add9" class="btn tile9" ></button>
+<button id="add10" class="btn tile10" ></button>
+<button id="add11" class="btn tile11" ></button>
+<button id="add12" class="btn tile12" ></button>
+
+<button id="print" class="btn" >print</button><br/>
+<div id="list" style="width:800px;height:600px;margin-top:50px"></div>
+
+						<script src="jquery-2.1.3.min.js"></script>
+						<!-- <script src="C:\Users\noha\Downloads\greensock-js\greensock-js\src\minified\jquery.gsap.min.js"></script> -->
+						<script src=".\greensock-js\src\minified\TweenMax.min.js"></script>
+						<script src=".\greensock-js\src\minified\utils\Draggable.min.js"></script>
+						<script>//All code created by Blake Bowen
+//Forked from: https://codepen.io/osublake/pen/RNLdpz/
+
+// GRID OPTIONS
+var rowSize   = 100;
+var colSize   = 100;
+var gutter    = 0;     // Spacing between tiles
+var numTiles  = 32;    // Number of tiles to initially populate the grid with
+var fixedSize = true; // When true, each tile's colspan will be fixed to 1
+var oneColumn = false; // When true, grid will only have 1 column and tiles have fixed colspan of 1
+var threshold = "50%"; // This is amount of overlap between tiles needed to detect a collision
+
+var $add1  = $("#add1");
+var $add2  = $("#add2");
+var $add3  = $("#add3");
+var $add4  = $("#add4");
+var $add5  = $("#add5");
+var $add6  = $("#add6");
+var $add7  = $("#add7");
+var $add8  = $("#add8");
+var $add9  = $("#add9");
+var $add10  = $("#add10");
+var $add11  = $("#add11");
+var $add12  = $("#add12");
+var $list = $("#list");
+var $mode = $("input[name='layout']");
+
+var createTile1 = function(){createTile("1")};
+var createTile2 = function(){createTile("2")};
+var createTile3 = function(){createTile("3")};
+var createTile4 = function(){createTile("4")};
+var createTile5 = function(){createTile("5")};
+var createTile6 = function(){createTile("6")};
+var createTile7 = function(){createTile("7")};
+var createTile8 = function(){createTile("8")};
+var createTile9 = function(){createTile("9")};
+var createTile10 = function(){createTile("10")};
+var createTile11 = function(){createTile("11")};
+var createTile12 = function(){createTile("12")};
+// Live node list of tiles
+var tiles  = $list[0].getElementsByClassName("tile");
+var label  = 1;
+var zIndex = 1000;
+
+var startWidth  = "100%";
+var startSize   = colSize;
+var singleWidth = colSize * 3;
+
+var colCount   = null;
+var rowCount   = null;
+var gutterStep = null;
+
+var shadow1 = "0 0px 0px  0 rgba(0, 0, 0, 0.5), 0 0px 0px 0 rgba(0, 0, 0, 0.6)";
+var shadow2 = "0 0px 0px 0 rgba(0, 0, 0, 0.3), 0 0px 0px 0 rgba(0, 0, 0, 0.2)";
+
+$(window).resize(resize);
+$add1.click(createTile1);
+$add2.click(createTile2);
+$add3.click(createTile3);
+$add4.click(createTile4);
+$add5.click(createTile5);
+$add6.click(createTile6);
+$add7.click(createTile7);
+$add8.click(createTile8);
+$add9.click(createTile9);
+$add10.click(createTile10);
+$add10.click(createTile11);
+$add10.click(createTile12);
+$mode.change(init);
+
+$("#print").click(printMap);
+init();
+
+function PrintElem(elem)
+{
+    var mywindow = window.open('', 'PRINT', 'height=400,width=600');
+
+    mywindow.document.write('<html><head><title>' + document.title  + '</title><link rel="stylesheet" href="ozobotstyle.css" type="text/css" />');
+    mywindow.document.write('</head><body >');
+    mywindow.document.write('<h1>' + document.title  + '</h1>');
+    mywindow.document.write(document.getElementById(elem).outerHTML);
+    mywindow.document.write('</body></html>');
+
+    mywindow.document.close(); // necessary for IE >= 10
+    mywindow.focus(); // necessary for IE >= 10*/
+
+    mywindow.print();
+    mywindow.close();
+
+    return true;
+}
+
+
+function printMap(){
+	PrintElem("list");
+}
+
+// ========================================================================
+//  INIT
+// ========================================================================
+function init() {
+
+  var width = startWidth;
+
+  // This value is defined when this function 
+  // is fired by a radio button change event
+  switch (this.value) {
+
+    case "mixed":
+      fixedSize = false;
+      oneColumn = false;
+      colSize   = startSize;
+      break;
+
+    case "fixed":
+      fixedSize = true;
+      oneColumn = false;
+      colSize   = startSize;
+      break;
+
+    case "column":
+      fixedSize = false;
+      oneColumn = true;
+      width     = singleWidth;
+      colSize   = singleWidth;
+      break;
+  }
+
+  $(".tile").remove();
+
+  TweenLite.to($list, 0.2, { width: width });
+  TweenLite.delayedCall(0.25, populateBoard);
+
+  function populateBoard() {
+
+    label = 1;
+    resize();
+
+   /* for (var i = 0; i < numTiles; i++) {
+      createTile1();
+    }*/
+  }
+
+}
+
+
+// ========================================================================
+//  RESIZE
+// ========================================================================
+function resize() {
+
+  colCount   = oneColumn ? 1 : Math.floor($list.outerWidth() / (colSize + gutter));
+  gutterStep = colCount == 1 ? gutter : (gutter * (colCount - 1) / colCount);
+  rowCount   = 0;
+
+  layoutInvalidated();
+}
+
+
+// ========================================================================
+//  CHANGE POSITION
+// ========================================================================
+function changePosition(from, to, rowToUpdate) {
+
+  var $tiles = $(".tile");
+  var insert = from > to ? "insertBefore" : "insertAfter";
+
+  // Change DOM positions
+  $tiles.eq(from)[insert]($tiles.eq(to));
+
+  layoutInvalidated(rowToUpdate);
+}
+
+// ========================================================================
+//  CREATE TILE
+// ========================================================================
+function createTile(cls) {
+
+  var colspan = fixedSize || oneColumn ? 1 : Math.floor(Math.random() * 2) + 1;
+  var element = $("<div/>").addClass("tile").addClass("tile"+cls);//.html(label++);
+  var lastX   = 0;
+
+  Draggable.create(element, {
+	onClick		: function (e) { 
+	// cycle trough the tiles, whatever
+		var cls = e.target.className;
+		if(cls =="tile tile1")e.target.className ="tile tile2"
+		else if(cls =="tile tile2")e.target.className ="tile tile3"
+		else if(cls =="tile tile3")e.target.className ="tile tile4"
+		else if(cls =="tile tile4")e.target.className ="tile tile5"
+		else if(cls =="tile tile5")e.target.className ="tile tile6"
+		else if(cls =="tile tile6")e.target.className ="tile tile7"
+		else if(cls =="tile tile7")e.target.className ="tile tile8"
+		else if(cls =="tile tile8")e.target.className ="tile tile9"
+		else if(cls =="tile tile9")e.target.className ="tile tile10"
+		else if(cls =="tile tile10")e.target.className ="tile tile11"
+		else if(cls =="tile tile11")e.target.className ="tile tile12"
+		else if(cls =="tile tile12")e.target.className ="tile tile1"
+	},
+    onDrag      : onDrag,
+    onPress     : onPress,
+    onRelease   : onRelease,
+    zIndexBoost : false
+  });
+
+  // NOTE: Leave rowspan set to 1 because this demo 
+  // doesn't calculate different row heights
+  var tile = {
+    col        : null,
+    colspan    : colspan,
+    element    : element,
+    height     : 0,
+    inBounds   : true,
+    index      : null,
+    isDragging : false,
+    lastIndex  : null,
+    newTile    : true,
+    positioned : false,
+    row        : null,
+    rowspan    : 1, 
+    width      : 0,
+    x          : 0,
+    y          : 0
+  };
+
+  // Add tile properties to our element for quick lookup
+  element[0].tile = tile;
+
+  $list.append(element);
+  layoutInvalidated();
+
+  function onPress() {
+
+    lastX = this.x;
+    tile.isDragging = true;
+    tile.lastIndex  = tile.index;
+
+    TweenLite.to(element, 0.2, {
+      autoAlpha : 0.75,
+      boxShadow : shadow2,
+      scale     : 0.95,
+      zIndex    : "+=1000"
+    });
+  }
+
+  function onDrag() {
+
+    // Move to end of list if not in bounds
+    if (!this.hitTest($list, 0)) {
+      tile.inBounds = false;
+      changePosition(tile.index, tiles.length - 1);
+      return;
+    }
+
+    tile.inBounds = true;
+
+    for (var i = 0; i < tiles.length; i++) {
+
+      // Row to update is used for a partial layout update
+      // Shift left/right checks if the tile is being dragged 
+      // towards the the tile it is testing
+      var testTile    = tiles[i].tile;
+      var onSameRow   = (tile.row === testTile.row);
+      var rowToUpdate = onSameRow ? tile.row : -1;
+      var shiftLeft   = onSameRow ? (this.x < lastX && tile.index > i) : true;
+      var shiftRight  = onSameRow ? (this.x > lastX && tile.index < i) : true;
+      var validMove   = (testTile.positioned && (shiftLeft || shiftRight));
+
+      if (this.hitTest(tiles[i], threshold) && validMove) {
+        changePosition(tile.index, i, rowToUpdate);
+        break;
+      }
+    }
+
+
+
+    lastX = this.x;
+  }
+
+  function onRelease() {
+
+    // Move tile back to last position if released out of bounds
+    this.hitTest($list, 0)
+      ? layoutInvalidated()
+      : changePosition(tile.index, tile.lastIndex);
+
+    TweenLite.to(element, 0.2, {
+      autoAlpha : 1,
+      boxShadow: shadow1,
+      scale     : 1,
+      x         : tile.x,
+      y         : tile.y,
+      zIndex    : ++zIndex
+    });
+
+    tile.isDragging = false;
+  }
+}
+
+// ========================================================================
+//  LAYOUT INVALIDATED
+// ========================================================================
+function layoutInvalidated(rowToUpdate) {
+
+  var timeline = new TimelineMax();
+  var partialLayout = (rowToUpdate > -1);
+
+  var height = 0;
+  var col    = 0;
+  var row    = 0;
+  var time   = 0.35;
+
+  $(".tile").each(function(index, element) {
+
+    var tile    = this.tile;
+    var oldRow  = tile.row;
+    var oldCol  = tile.col;
+    var newTile = tile.newTile;
+
+    // PARTIAL LAYOUT: This condition can only occur while a tile is being 
+    // dragged. The purpose of this is to only swap positions within a row, 
+    // which will prevent a tile from jumping to another row if a space
+    // is available. Without this, a large tile in column 0 may appear 
+    // to be stuck if hit by a smaller tile, and if there is space in the 
+    // row above for the smaller tile. When the user stops dragging the 
+    // tile, a full layout update will happen, allowing tiles to move to
+    // available spaces in rows above them.
+    if (partialLayout) {
+      row = tile.row;
+      if (tile.row !== rowToUpdate) return;
+    }
+
+    // Update trackers when colCount is exceeded 
+    if (col + tile.colspan > colCount) {
+      col = 0; row++;
+    }
+
+    $.extend(tile, {
+      col    : col,
+      row    : row,
+      index  : index,
+      x      : col * gutterStep + (col * colSize),
+      y      : row * gutterStep + (row * rowSize),
+      width  : tile.colspan * colSize + ((tile.colspan - 1) * gutterStep),
+      height : tile.rowspan * rowSize
+    });
+
+    col += tile.colspan;
+
+    // If the tile being dragged is in bounds, set a new
+    // last index in case it goes out of bounds
+    if (tile.isDragging && tile.inBounds) {
+      tile.lastIndex = index;
+    }
+
+    if (newTile) {
+
+      // Clear the new tile flag
+      tile.newTile = false;
+
+      var from = {
+        autoAlpha : 0,
+        boxShadow : shadow1,
+        height    : tile.height,
+        scale     : 0,
+        width     : tile.width
+      };
+
+      var to = {
+        autoAlpha : 1,
+        scale     : 1,
+        zIndex    : zIndex
+      }
+
+      timeline.fromTo(element, time, from, to, "reflow");
+    }
+
+    // Don't animate the tile that is being dragged and
+    // only animate the tiles that have changes
+    if (!tile.isDragging && (oldRow !== tile.row || oldCol !== tile.col)) {
+
+      var duration = newTile ? 0 : time;
+
+      // Boost the z-index for tiles that will travel over 
+      // another tile due to a row change
+      if (oldRow !== tile.row) {
+        timeline.set(element, { zIndex: ++zIndex }, "reflow");
+      }
+
+      timeline.to(element, duration, {
+        x : tile.x,
+        y : tile.y,
+        onComplete : function() { tile.positioned = true; },
+        onStart    : function() { tile.positioned = false; }
+      }, "reflow");
+    }
+  });
+
+  // If the row count has changed, change the height of the container
+  if (row !== rowCount) {
+    rowCount = row;
+    height   = rowCount * gutterStep + (++row * rowSize);
+    timeline.to($list, 0.2, { height: height }, "reflow");
+  }
+}
+
+/*TweenLite.delayedCall(1, updateText)
+function updateText(){
+  $(".tile")[0].innerHTML = "my message"
+}*/
+
+
+//# sourceURL=pen.js
+											</script>
+										</body>
+										</html>

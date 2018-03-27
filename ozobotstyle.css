@@ -1,0 +1,154 @@
+
+@media print {
+  #list {-webkit-print-color-adjust: exact;position:absolute !important;
+  width:100%; 
+  height:100%;
+  page-break-after:always }
+}
+/* @page { */
+    /* size:A4 landscape; */
+    /* margin-left: 0px; */
+    /* margin-right: 0px; */
+    /* margin-top: 0px; */
+    /* margin-bottom: 0px; */
+    /* margin: 0; */
+    /* -webkit-print-color-adjust: exact; */
+/* } */
+html {
+  font-family: RobotoDraft, "Helvetica Neue", Helvetica, Arial;
+}
+
+body {
+  background: white;
+  padding: 5px;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+h1 {
+  color: #efefef;
+  font-weight: normal;
+  font-weight: 300;
+  margin-bottom: 30px;
+
+  a {
+    color: #efefef;
+    border-bottom: 2px solid #efefef;
+    text-decoration: none;
+    padding-bottom: 3px;
+
+    &:hover {
+      color: yellowgreen;
+      border-color: yellowgreen;
+    }
+  }
+}
+
+button {
+  padding: 12px 30px;
+  box-shadow: none;
+  border: none;
+  color: #efefef;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+    color: yellowgreen;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+#list {
+  background-color: rgba(0, 0, 0, 0.0);
+  width: 250px;
+  width: 90%;
+  width: 0;
+  position: relative;
+  display: block;
+  margin-top: 50px;
+}
+
+.btn {
+width:50px;
+height:50px;
+margin:10px;
+float:left;background-size:50px 50px;background-repeat:no-repeat;
+}
+.tile {
+  display: block;
+  position: absolute;
+  color: blue;
+  padding: 0px;
+  font-weight: bold;
+  margin:0px;
+}
+
+.tile:hover{border:1px solid red}
+.tile1 {
+  background-image: url('tiles/1.svg'); 
+}
+
+.tile2 {
+  background-image: url('tiles/2.svg');
+ }
+
+.tile3 {
+  background-image: url('tiles/3.svg');
+ }
+ 
+ .tile4 {
+  background-image: url('tiles/4.svg');
+ }
+ .tile5 {
+  background-image: url('tiles/5.svg');
+ }
+ .tile6 {
+  background-image: url('tiles/6.svg');
+ }
+  .tile7 {
+  background-image: url('tiles/7.svg');
+ }
+  .tile8 {
+  background-image: url('tiles/8.svg');
+ }
+ 
+ .tile9 {
+  background-image: url('tiles/9.svg');
+ }
+ 
+ .tile10 {
+  background-image: none;
+ }
+ 
+ .tile11 {
+  background-image: url('tiles/11.svg');
+ }
+ .tile12{
+  background-image: url('tiles/12.svg');
+ }
+ 
+.layout {
+  color: #efefef;
+  margin-bottom: 15px;
+
+  label {
+    margin-right: 15px;
+    cursor: pointer;
+
+    &:hover {
+      color: yellowgreen;
+    }
+  }
+
+  input {
+    margin-right: 3px;
+  }
+}
