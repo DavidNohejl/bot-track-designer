@@ -1,34 +1,40 @@
 <html>
 	<head>
-	<link rel="stylesheet" href="ozobotstyle.css" type="text/css" />
+		<link rel="stylesheet" href="ozobotstyle.css" type="text/css" />
 	</head>
-		<body>		
-<button id="add1" class="btn tile1" ></button>
-<button id="add2" class="btn tile2" ></button>
-<button id="add3" class="btn tile3" ></button>
-<button id="add4" class="btn tile4" ></button>
-<button id="add5" class="btn tile5" ></button>
-<button id="add6" class="btn tile6" ></button>
-<button id="add7" class="btn tile7" ></button>
-<button id="add8" class="btn tile8" ></button>
-<button id="add9" class="btn tile9" ></button>
-<button id="add10" class="btn tile10" ></button>
-<button id="add11" class="btn tile11" ></button>
-<button id="add12" class="btn tile12" ></button>
+	<body>	
+		<div id="ctrl-panel">
+			<button id="add1" class="btn tile1" ></button>
+			<button id="add2" class="btn tile2 active-btn" ></button>
+			<button id="add3" class="btn tile3" ></button>
+			<button id="add4" class="btn tile4" ></button>
+			<button id="add5" class="btn tile5" ></button>
+			<button id="add6" class="btn tile6" ></button>
+			<button id="add7" class="btn tile7" ></button>
+			<button id="add8" class="btn tile8" ></button>
+			<button id="add9" class="btn tile9" ></button>
+			<button id="add10" class="btn tile10" ></button>
+			<button id="add11" class="btn tile11" ></button>
+			<button id="add12" class="btn tile12" ></button>
 
-<button id="print" class="btn" >print</button><br/>
-<div id="list" style="width:800px;height:600px;margin-top:50px"></div>
+			<a href="#" id="reset" >reset</a>
+			<br/><a href="#" id="grid" >grid 8x4</a>
+			<br/><a href="#" id="export" >export</a>
+			<br/><a href="#" id="run" >run</a>
+			<div id="robot" ></div>
+		</div>
+		<div id="list" style="width:800px;height:600px;margin-top:50px"></div>
 
-						<script src="jquery-2.1.3.min.js"></script>
-						<!-- <script src="C:\Users\noha\Downloads\greensock-js\greensock-js\src\minified\jquery.gsap.min.js"></script> -->
-						<script src=".\greensock-js\src\minified\TweenMax.min.js"></script>
-						<script src=".\greensock-js\src\minified\utils\Draggable.min.js"></script>
-						<script>//All code created by Blake Bowen
+		<script src="jquery-2.1.3.min.js"></script>
+		<!-- <script src="C:\Users\noha\Downloads\greensock-js\greensock-js\src\minified\jquery.gsap.min.js"></script> -->
+		<script src=".\greensock-js\src\minified\TweenMax.min.js"></script>
+		<script src=".\greensock-js\src\minified\utils\Draggable.min.js"></script>
+		<script>//All code created by Blake Bowen
 //Forked from: https://codepen.io/osublake/pen/RNLdpz/
 
 // GRID OPTIONS
-var rowSize   = 100;
-var colSize   = 100;
+var rowSize   = 150;
+var colSize   = 150;
 var gutter    = 0;     // Spacing between tiles
 var numTiles  = 32;    // Number of tiles to initially populate the grid with
 var fixedSize = true; // When true, each tile's colspan will be fixed to 1
@@ -50,6 +56,7 @@ var $add12  = $("#add12");
 var $list = $("#list");
 var $mode = $("input[name='layout']");
 
+
 var createTile1 = function(){createTile("1")};
 var createTile2 = function(){createTile("2")};
 var createTile3 = function(){createTile("3")};
@@ -62,6 +69,10 @@ var createTile9 = function(){createTile("9")};
 var createTile10 = function(){createTile("10")};
 var createTile11 = function(){createTile("11")};
 var createTile12 = function(){createTile("12")};
+
+
+$("#grid").click(function(){init(createTile2)});
+$("#reset").click(function(){init(createTile10)});
 // Live node list of tiles
 var tiles  = $list[0].getElementsByClassName("tile");
 var label  = 1;
@@ -79,51 +90,57 @@ var shadow1 = "0 0px 0px  0 rgba(0, 0, 0, 0.5), 0 0px 0px 0 rgba(0, 0, 0, 0.6)";
 var shadow2 = "0 0px 0px 0 rgba(0, 0, 0, 0.3), 0 0px 0px 0 rgba(0, 0, 0, 0.2)";
 
 $(window).resize(resize);
-$add1.click(createTile1);
-$add2.click(createTile2);
-$add3.click(createTile3);
-$add4.click(createTile4);
-$add5.click(createTile5);
-$add6.click(createTile6);
-$add7.click(createTile7);
-$add8.click(createTile8);
-$add9.click(createTile9);
-$add10.click(createTile10);
-$add10.click(createTile11);
-$add10.click(createTile12);
-$mode.change(init);
 
-$("#print").click(printMap);
-init();
-
-function PrintElem(elem)
-{
-    var mywindow = window.open('', 'PRINT', 'height=400,width=600');
-
-    mywindow.document.write('<html><head><title>' + document.title  + '</title><link rel="stylesheet" href="ozobotstyle.css" type="text/css" />');
-    mywindow.document.write('</head><body >');
-    mywindow.document.write('<h1>' + document.title  + '</h1>');
-    mywindow.document.write(document.getElementById(elem).outerHTML);
-    mywindow.document.write('</body></html>');
-
-    mywindow.document.close(); // necessary for IE >= 10
-    mywindow.focus(); // necessary for IE >= 10*/
-
-    mywindow.print();
-    mywindow.close();
-
-    return true;
-}
+$(".btn").click(function() {
+    var current = document.getElementsByClassName("active-btn");
+    current[0].className = current[0].className.replace(" active-btn", "");
+    this.className += " active-btn";
+  });
+  
+  
+  function export_grid(){
+	var text = ""; 
+	  $(".tile").each(function(){
+	  text+=this.className.split(" ")[1].replace("tile","")+" "
+	  });
+	  alert(text);
+  }
 
 
-function printMap(){
-	PrintElem("list");
-}
+  $("#export").click(export_grid);
+
+  $("#run").click(start_simulation);
+ 
+ function start_simulation()
+ {
+	var robot = $("#robot")[0];
+	
+	robot.className="robot-active";
+	//robot.left =0;robot.right = 0;
+	$("#robot").animate({left: "+=100px"});
+	$("#robot").animate({left: "+=100px"});
+	$("#robot").animate({left: "+=100px"});
+	$("#robot").animate({top: "+=100px"});
+	$("#robot").animate({top: "+=100px"});
+	$("#robot").animate({top: "-=100px"});
+	$("#robot").animate({top: "-=100px"});
+	$("#robot").animate({left: "-=100px"});
+	$("#robot").animate({left: "-=100px"});
+	$("#robot").animate({left: "-=100px"},null,function(){
+	robot.className="";
+	//robot.left=0;
+	//robot.right=0;
+	});
+	
+ }
+
+init(createTile2);
+
 
 // ========================================================================
 //  INIT
 // ========================================================================
-function init() {
+function init(tilefunction) {
 
   var width = startWidth;
 
@@ -161,9 +178,9 @@ function init() {
     label = 1;
     resize();
 
-   /* for (var i = 0; i < numTiles; i++) {
-      createTile1();
-    }*/
+    for (var i = 0; i < numTiles; i++) {
+      tilefunction();
+    }
   }
 
 }
@@ -207,8 +224,10 @@ function createTile(cls) {
 
   Draggable.create(element, {
 	onClick		: function (e) { 
+
 	// cycle trough the tiles, whatever
-		var cls = e.target.className;
+		var cls =$(".active-btn")[0].className;
+		e.target.className ="tile "+cls.split(" ")[1];
 		if(cls =="tile tile1")e.target.className ="tile tile2"
 		else if(cls =="tile tile2")e.target.className ="tile tile3"
 		else if(cls =="tile tile3")e.target.className ="tile tile4"
@@ -436,6 +455,6 @@ function updateText(){
 
 
 //# sourceURL=pen.js
-											</script>
-										</body>
-										</html>
+							</script>
+						</body>
+					</html>
