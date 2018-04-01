@@ -18,12 +18,12 @@
 			<button id="add12" class="btn tile12" ></button>
 
 			<a href="#" id="reset" >reset</a>
-			<br/><a href="#" id="grid" >grid 8x4</a>
-			<br/><a href="#" id="export" >export</a>
-			<br/><a href="#" id="run" >run</a>
+			<br/><a href="#" id="grid" >grid 8x4</a>&nbsp;<a href="#" id="grid5x3" >grid 5x3</a>
+			<br/><a href="#" id="export" >export</a>&nbsp;<a href="#" id="import" >import</a>
+			<br/><a href="#" id="run" >run</a>&nbsp;<a href="#" id="example" >example</a>
 			<div id="robot" ></div>
 		</div>
-		<div id="list" style="width:800px;height:600px;margin-top:50px"></div>
+		<div id="list" style="margin-top:50px"></div>
 
 		<script src="jquery-2.1.3.min.js"></script>
 		<!-- <script src="C:\Users\noha\Downloads\greensock-js\greensock-js\src\minified\jquery.gsap.min.js"></script> -->
@@ -71,7 +71,14 @@ var createTile11 = function(){createTile("11")};
 var createTile12 = function(){createTile("12")};
 
 
-$("#grid").click(function(){init(createTile2)});
+$("#grid").click(function(){
+init(createTile2,32);
+$("#list").width(8*150);
+});
+$("#grid5x3").click(function(){
+$("#list").width(5*150);
+init(createTile2,15);
+});
 $("#reset").click(function(){init(createTile10)});
 // Live node list of tiles
 var tiles  = $list[0].getElementsByClassName("tile");
@@ -103,14 +110,81 @@ $(".btn").click(function() {
 	  $(".tile").each(function(){
 	  text+=this.className.split(" ")[1].replace("tile","")+" "
 	  });
-	  alert(text);
+	  //alert(text);
+	  var width = $("#list").width()/150;
+	  var height = $("#list").height()/150;
+	  createEdgeList(width,height, text);
+  }
+  
+  function import_grid(){
+	var text = prompt("Paste in previously exported grid"); 
+	  $(".tile").remove();
+	  var tiles = text.split(" ");
+	  for(i=0;i<tiles.length;i++)
+	  {
+		createTile(tiles[i])
+	  }
+	  
   }
 
+  function createEdgeList(width,height,tilesString){
+	var edges = [];
+	var tiles = tilesString.split(" ");
+	var left2right = ["1","2","4","5","6","7","12"];
+	var right2left = ["1", "2", "7", "8", "9", "11", "12" ];
+    var top2bottom = ["2","3","4","5","7","8","11"];
+    var bottom2top = ["2", "3", "4", "6", "9", "11", "12" ];
+	 // detect horizontal edges
+	for (j = 0; j < height; j++)
+	{
+		for (i = 0; i < width-1; i++)
+		{
+			var left = tiles[i + j * width];
+			var right = tiles[i + 1+ j * width];
+			// is there edge between the two?
+			if (left2right.includes(left) && right2left.includes(right)) {
+				edges.push({ From :i + j * width, To : i + 1 + j * width });
+			}
+		}
+	}
+
+	// detect vertical edges
+	  for (j = 0; j < width; j++)
+	{
+		for (i = 0; i < height - 1; i++)
+		{
+			var top = tiles[j + i * width];
+			var bottom = tiles[j + (i+1) * width];
+			// is there edge between the two?
+			if (top2bottom.includes(top) && bottom2top.includes(bottom))
+			{
+				edges.push( { From : j+i*width, To : j+(i+1)*width });
+			}
+		}
+	}
+	var text = width+" "+height+"\n";
+	for(i=0;i<edges.length;i++)
+	{
+	 text+= edges[i].From + "-"+edges[i].To+"\n";
+	}
+	prompt("copy to clipboard",text);
+  }
 
   $("#export").click(export_grid);
-
+  $("#import").click(import_grid);
   $("#run").click(start_simulation);
  
+ $("#example").click(function(){
+	$(".tile").remove();
+	$("#list").width(5*150);
+	 resize();
+	  var tiles = "1 8 5 1 8 10 4 11 10 3 1 9 6 1 1".split(" ");
+	  for(i=0;i<tiles.length;i++)
+	  {
+		createTile(tiles[i])
+	  }
+ });
+
  function start_simulation()
  {
 	var robot = $("#robot")[0];
@@ -134,13 +208,13 @@ $(".btn").click(function() {
 	
  }
 
-init(createTile2);
+init(createTile2,32);
 
 
 // ========================================================================
 //  INIT
 // ========================================================================
-function init(tilefunction) {
+function init(tilefunction, tileCount) {
 
   var width = startWidth;
 
@@ -170,7 +244,7 @@ function init(tilefunction) {
 
   $(".tile").remove();
 
-  TweenLite.to($list, 0.2, { width: width });
+  //TweenLite.to($list, 0.2, { width: width });
   TweenLite.delayedCall(0.25, populateBoard);
 
   function populateBoard() {
@@ -178,7 +252,7 @@ function init(tilefunction) {
     label = 1;
     resize();
 
-    for (var i = 0; i < numTiles; i++) {
+    for (var i = 0; i < tileCount; i++) {
       tilefunction();
     }
   }
